@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kalkulator Kebidanan — bidanpintar.id</title>
+<style>
+:root{
+  --deep:#073f3a; --teal:#0d6e66; --teal2:#0a5650; --rose:#c2557a; --rosel:#f6e7ed;
+  --band:#eef5f4; --ink:#1f2a37; --grey:#6b7280; --bord:#d4dedc; --zeb:#f7faf9;
+  --ok:#1e9e6a; --warn:#d98e26; --bad:#c2557a;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Segoe UI',system-ui,-apple-system,Roboto,Arial,sans-serif;color:var(--ink);background:#eef3f2}
+a{color:var(--teal)}
+.wrap{max-width:920px;margin:0 auto;padding:0 14px 60px}
+
+/* header */
+header{background:linear-gradient(135deg,var(--deep),var(--teal));color:#fff;padding:26px 0 22px;margin-bottom:18px}
+header .wrap{padding-bottom:0}
+.brand{font-weight:800;font-size:15px;letter-spacing:.3px}
+.brand b{color:#f3b9cb}
+h1{margin:8px 0 4px;font-size:26px;font-weight:800;letter-spacing:-.3px}
+.sub{color:#d7efec;font-size:14px;max-width:640px}
+
+/* nav */
+nav{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 18px}
+nav button{border:1.5px solid var(--bord);background:#fff;color:var(--ink);
+  padding:9px 14px;border-radius:22px;font-size:13.5px;font-weight:600;cursor:pointer;transition:.15s}
+nav button:hover{border-color:var(--teal)}
+nav button.active{background:var(--teal);color:#fff;border-color:var(--teal)}
+
+/* panels */
+.panel{display:none;background:#fff;border:1px solid var(--bord);border-radius:14px;padding:20px;box-shadow:0 3px 14px rgba(7,63,58,.06)}
+.panel.active{display:block;animation:fade .2s ease}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.panel h2{margin:0 0 2px;font-size:20px;color:var(--deep)}
+.panel .desc{color:var(--grey);font-size:13.5px;margin:0 0 16px}
+
+/* form bits */
+label{display:block;font-size:13px;font-weight:600;color:var(--deep);margin:0 0 5px}
+input[type=date],input[type=number],select{width:100%;padding:10px 12px;border:1.4px solid var(--bord);
+  border-radius:9px;font-size:15px;background:#fff;color:var(--ink)}
+input:focus,select:focus{outline:none;border-color:var(--teal)}
+.row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+.col{flex:1;min-width:150px}
+.btn{background:var(--teal);color:#fff;border:none;padding:11px 22px;border-radius:10px;
+  font-size:15px;font-weight:700;cursor:pointer;transition:.15s}
+.btn:hover{background:#0b5d56}
+.btn.rose{background:var(--rose)} .btn.rose:hover{background:#a8456a}
+.btn.ghost{background:#fff;color:var(--teal);border:1.5px solid var(--teal)}
+
+/* score selects grid */
+.scoregrid{border:1px solid var(--bord);border-radius:10px;overflow:hidden;margin-bottom:14px}
+.scoregrid .hd{display:flex;background:var(--band);font-size:12px;font-weight:700;color:var(--deep);padding:8px 12px}
+.scoregrid .hd span:first-child{flex:1}
+.scoregrid .item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-top:1px solid var(--bord)}
+.scoregrid .item:nth-child(even){background:var(--zeb)}
+.scoregrid .item label{flex:1;margin:0;font-weight:600;font-size:13.5px}
+.scoregrid .item small{display:block;color:var(--grey);font-weight:400;font-size:12px;margin-top:2px}
+.scoregrid .item select{width:auto;min-width:118px;padding:7px 9px;font-size:13.5px}
+
+/* checklist (KSPR) */
+.checks{border:1px solid var(--bord);border-radius:10px;overflow:hidden;margin-bottom:14px}
+.checks .ck{display:flex;align-items:flex-start;gap:10px;padding:9px 12px;border-top:1px solid var(--bord);cursor:pointer}
+.checks .ck:first-child{border-top:none}
+.checks .ck:nth-child(even){background:var(--zeb)}
+.checks .ck input{margin-top:3px;width:17px;height:17px;accent-color:var(--rose)}
+.checks .ck .t{flex:1;font-size:13.5px}
+.checks .ck .sc{font-weight:800;color:var(--rose);font-size:13px}
+.checks .ck.base{background:var(--band)}
+.checks .ck.base input{accent-color:var(--teal)}
+
+/* result */
+.result{margin-top:6px;border-radius:12px;padding:16px 18px;border-left:6px solid var(--teal);background:var(--band);display:none}
+.result.show{display:block;animation:fade .2s}
+.result .badge{display:inline-block;font-size:12px;font-weight:800;letter-spacing:.4px;color:#fff;
+  background:var(--teal);padding:4px 11px;border-radius:20px;margin-bottom:8px;text-transform:uppercase}
+.result .big{font-size:23px;font-weight:800;color:var(--deep);margin:2px 0 6px}
+.result p{margin:6px 0 0;font-size:14px;line-height:1.55}
+.result ul{margin:8px 0 0;padding-left:20px;font-size:13.5px;line-height:1.5}
+.result.ok{border-color:var(--ok);background:#e9f7f0}.result.ok .badge{background:var(--ok)}.result.ok .big{color:#137a4f}
+.result.warn{border-color:var(--warn);background:#fdf3e3}.result.warn .badge{background:var(--warn)}.result.warn .big{color:#9c6612}
+.result.bad{border-color:var(--bad);background:var(--rosel)}.result.bad .badge{background:var(--bad)}.result.bad .big{color:#9b2f53}
+
+.note{font-size:12px;color:var(--grey);background:var(--band);border-radius:9px;padding:10px 12px;margin-top:14px;line-height:1.5}
+footer{text-align:center;color:var(--grey);font-size:12.5px;margin-top:26px;line-height:1.6}
+.disc{background:#fff;border:1px solid var(--bord);border-left:4px solid var(--rose);border-radius:10px;
+  padding:12px 14px;font-size:12.5px;color:#6b2643;margin-top:18px;line-height:1.55}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="brand">bidanpintar<b>.id</b></div>
+    <h1>Kalkulator Kebidanan</h1>
+    <div class="sub">Hitung & dapatkan kesimpulannya otomatis — APGAR, HPL, skor risiko, laktasi, dan lainnya. Pendamping Clinical Toolkit for Midwifery Students.</div>
+  </div>
+</header>
+
+<div class="wrap">
+  <nav id="nav">
+    <button data-t="hpl" class="active">HPL &amp; Usia Kehamilan</button>
+    <button data-t="apgar">APGAR</button>
+    <button data-t="kspr">Skor Risiko (KSPR)</button>
+    <button data-t="latch">LATCH (Laktasi)</button>
+    <button data-t="lila">LiLA (Status Gizi)</button>
+    <button data-t="tfu">TFU → UK &amp; TBJ</button>
+    <button data-t="bbl">Klasifikasi Berat Lahir</button>
+    <button data-t="imt">IMT &amp; Kenaikan BB</button>
+  </nav>
+
+  <!-- HPL -->
+  <section class="panel active" id="hpl">
+    <h2>Perhitungan HPL &amp; Usia Kehamilan</h2>
+    <p class="desc">Rumus Naegele. Masukkan HPHT (siklus 28 hari teratur).</p>
+    <div class="row">
+      <div class="col"><label>HPHT (Hari Pertama Haid Terakhir)</label><input type="date" id="hpht"></div>
+      <div class="col"><label>Tanggal periksa (opsional)</label><input type="date" id="periksa"></div>
+    </div>
+    <button class="btn" onclick="calcHPL()">Hitung HPL</button>
+    <div class="result" id="r_hpl"></div>
+    <div class="note">HPL = (Tgl HPHT + 7) − (Bulan − 3) + (Tahun + 1). Aterm/cukup bulan = 37–42 minggu.</div>
+  </section>
+
+  <!-- APGAR -->
+  <section class="panel" id="apgar">
+    <h2>APGAR Score</h2>
+    <p class="desc">Nilai tiap komponen 0–2. Dinilai pada menit ke-1, ke-5 (dan ke-10 bila perlu).</p>
+    <div class="scoregrid" id="apgarGrid"></div>
+    <button class="btn" onclick="calcApgar()">Hitung APGAR</button>
+    <div class="result" id="r_apgar"></div>
+  </section>
+
+  <!-- KSPR -->
+  <section class="panel" id="kspr">
+    <h2>Skor Risiko Kehamilan (KSPR)</h2>
+    <p class="desc">Kartu Skor Poedji Rochjati. Skor awal 2 (otomatis). Centang faktor yang sesuai.</p>
+    <div class="checks" id="ksprList"></div>
+    <button class="btn rose" onclick="calcKSPR()">Hitung Skor Risiko</button>
+    <div class="result" id="r_kspr"></div>
+  </section>
+
+  <!-- LATCH -->
+  <section class="panel" id="latch">
+    <h2>LATCH Score (Penilaian Laktasi)</h2>
+    <p class="desc">Nilai tiap komponen 0–2. Total 0–10.</p>
+    <div class="scoregrid" id="latchGrid"></div>
+    <button class="btn" onclick="calcLatch()">Hitung LATCH</button>
+    <div class="result" id="r_latch"></div>
+  </section>
+
+  <!-- LiLA -->
+  <section class="panel" id="lila">
+    <h2>LiLA — Status Gizi Ibu Hamil</h2>
+    <p class="desc">Lingkar Lengan Atas untuk deteksi Kurang Energi Kronis (KEK).</p>
+    <div class="row"><div class="col" style="max-width:240px"><label>LiLA (cm)</label><input type="number" id="lilaVal" step="0.1" placeholder="mis. 24.5"></div></div>
+    <button class="btn" onclick="calcLila()">Cek Status Gizi</button>
+    <div class="result" id="r_lila"></div>
+    <div class="note">Ambang KEK: LiLA &lt; 23,5 cm.</div>
+  </section>
+
+  <!-- TFU -->
+  <section class="panel" id="tfu">
+    <h2>TFU → Estimasi Usia Kehamilan &amp; TBJ</h2>
+    <p class="desc">McDonald (UK) &amp; rumus Johnson (taksiran berat janin).</p>
+    <div class="row">
+      <div class="col"><label>TFU (cm)</label><input type="number" id="tfuVal" step="0.1" placeholder="mis. 30"></div>
+      <div class="col"><label>Kepala sudah masuk PAP?</label>
+        <select id="papVal"><option value="12">Belum masuk PAP (n=12)</option><option value="11">Sudah masuk PAP (n=11)</option></select></div>
+    </div>
+    <button class="btn" onclick="calcTFU()">Hitung</button>
+    <div class="result" id="r_tfu"></div>
+    <div class="note">UK (mgg) ≈ TFU × 8/7. TBJ (gram) = (TFU − n) × 155. Hasil adalah estimasi, konfirmasi dengan USG.</div>
+  </section>
+
+  <!-- BBL -->
+  <section class="panel" id="bbl">
+    <h2>Klasifikasi Berat Lahir</h2>
+    <p class="desc">Kategori berat badan bayi baru lahir.</p>
+    <div class="row"><div class="col" style="max-width:240px"><label>Berat lahir (gram)</label><input type="number" id="bblVal" placeholder="mis. 3000"></div></div>
+    <button class="btn" onclick="calcBBL()">Klasifikasikan</button>
+    <div class="result" id="r_bbl"></div>
+  </section>
+
+  <!-- IMT -->
+  <section class="panel" id="imt">
+    <h2>IMT &amp; Rekomendasi Kenaikan BB</h2>
+    <p class="desc">Gunakan BB sebelum hamil untuk anjuran kenaikan berat selama kehamilan (IOM/WHO).</p>
+    <div class="row">
+      <div class="col"><label>Berat badan (kg)</label><input type="number" id="bbVal" step="0.1" placeholder="mis. 55"></div>
+      <div class="col"><label>Tinggi badan (cm)</label><input type="number" id="tbVal" step="0.1" placeholder="mis. 158"></div>
+    </div>
+    <button class="btn" onclick="calcIMT()">Hitung IMT</button>
+    <div class="result" id="r_imt"></div>
+  </section>
+
+  <div class="disc"><b>Penting:</b> Kalkulator ini alat bantu belajar &amp; dokumentasi mahasiswa.
+  Hasil bersifat estimasi dan tidak menggantikan penilaian klinis, SOP lahan praktik, atau keputusan pembimbing/dokter.</div>
+
+  <footer>
+    © 2026 <b>bidanpintar.id</b> — Pendamping Clinical Toolkit for Midwifery Students<br>
+    ANC · Persalinan · Nifas · Neonatus
+  </footer>
+</div>
+
+<script>
+// ---------- navigation ----------
+const nav=document.getElementById('nav');
+nav.addEventListener('click',e=>{
+  if(e.target.tagName!=='BUTTON')return;
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  e.target.classList.add('active');
+  document.getElementById(e.target.dataset.t).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+function show(id,cls,html){const r=document.getElementById(id);r.className='result show '+cls;r.innerHTML=html;}
+
+// ---------- HPL ----------
+const MONTHS=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+function fmt(d){return d.getDate()+' '+MONTHS[d.getMonth()]+' '+d.getFullYear();}
+(function(){const t=new Date();document.getElementById('periksa').valueAsDate=t;})();
+function calcHPL(){
+  const v=document.getElementById('hpht').value;
+  if(!v){show('r_hpl','warn','<div class="badge">Lengkapi data</div><p>Silakan isi tanggal HPHT terlebih dahulu.</p>');return;}
+  const hpht=new Date(v+'T00:00:00');
+  const hpl=new Date(hpht.getFullYear()+1, hpht.getMonth()-3, hpht.getDate()+7);
+  const ref=document.getElementById('periksa').value?new Date(document.getElementById('periksa').value+'T00:00:00'):new Date();
+  const days=Math.floor((ref-hpht)/86400000);
+  let cls='ok',tri='Trimester I',extra='';
+  if(days<0){show('r_hpl','warn','<div class="badge">Periksa tanggal</div><p>Tanggal periksa lebih awal dari HPHT. Mohon periksa kembali.</p>');return;}
+  const w=Math.floor(days/7), d=days%7;
+  if(w>=28){tri='Trimester III';}else if(w>=14){tri='Trimester II';}
+  if(w>=37&&w<=42){extra='Sudah memasuki <b>usia aterm/cukup bulan</b> (37–42 mgg).';cls='ok';}
+  else if(w>42){extra='Melebihi 42 minggu — <b>kehamilan lewat bulan (postterm)</b>, perlu evaluasi.';cls='bad';}
+  else if(w<37&&w>=28){extra='Bila persalinan terjadi sekarang termasuk <b>kurang bulan (preterm)</b>.';cls='warn';}
+  else {cls='ok';}
+  const toHPL=Math.ceil((hpl-ref)/86400000);
+  show('r_hpl',cls,
+    '<div class="badge">'+tri+'</div>'+
+    '<div class="big">HPL: '+fmt(hpl)+'</div>'+
+    '<p>Usia kehamilan saat tanggal periksa: <b>'+w+' minggu '+d+' hari</b>.</p>'+
+    (toHPL>=0?'<p>Perkiraan <b>'+toHPL+' hari</b> lagi menuju HPL.</p>':'<p>Sudah melewati HPL <b>'+Math.abs(toHPL)+' hari</b>.</p>')+
+    (extra?'<p>'+extra+'</p>':''));
+}
+
+// ---------- APGAR ----------
+const apgarItems=[
+ ['Appearance — warna kulit',['0 — Biru/pucat','1 — Tubuh merah, ekstremitas biru','2 — Merah seluruhnya']],
+ ['Pulse — denyut jantung',['0 — Tidak ada','1 — < 100 x/mnt','2 — > 100 x/mnt']],
+ ['Grimace — refleks',['0 — Tidak ada respon','1 — Menyeringai','2 — Menangis/batuk/bersin']],
+ ['Activity — tonus otot',['0 — Lemas','1 — Fleksi sedikit','2 — Gerak aktif']],
+ ['Respiration — pernapasan',['0 — Tidak ada','1 — Lambat/tidak teratur','2 — Menangis kuat']],
+];
+function buildScore(grid,items,prefix){
+  let h='<div class="hd"><span>Komponen</span><span>Nilai</span></div>';
+  items.forEach((it,i)=>{
+    h+='<div class="item"><label>'+it[0]+'</label><select id="'+prefix+i+'">'+
+      it[1].map((o,k)=>'<option value="'+k+'">'+o+'</option>').join('')+'</select></div>';
+  });
+  document.getElementById(grid).innerHTML=h;
+}
+buildScore('apgarGrid',apgarItems,'ap');
+function calcApgar(){
+  let s=0;for(let i=0;i<5;i++)s+=+document.getElementById('ap'+i).value;
+  let cls,badge,txt;
+  if(s>=7){cls='ok';badge='Bayi Bugar';txt='Skor 7–10: kondisi <b>normal/baik</b>. Lanjutkan perawatan rutin, jaga kehangatan, dukung IMD.';}
+  else if(s>=4){cls='warn';badge='Asfiksia Ringan–Sedang';txt='Skor 4–6: <b>asfiksia ringan–sedang</b>. Lakukan stimulasi taktil, bersihkan jalan napas, beri ventilasi bila perlu, evaluasi ulang.';}
+  else{cls='bad';badge='Asfiksia Berat';txt='Skor 0–3: <b>asfiksia berat</b>. Lakukan <b>resusitasi segera</b> (langkah VTP), panggil bantuan, evaluasi tiap 30 detik.';}
+  show('r_apgar',cls,'<div class="badge">'+badge+'</div><div class="big">Total APGAR: '+s+' / 10</div><p>'+txt+'</p>'+
+    '<ul><li>7–10 = normal</li><li>4–6 = asfiksia ringan–sedang</li><li>0–3 = asfiksia berat</li></ul>');
+}
+
+// ---------- KSPR ----------
+const ksprF=[
+ ['Terlalu muda, hamil ≤ 16 tahun',4],['Terlalu tua, hamil ≥ 35 tahun',4],
+ ['Terlalu lambat hamil I (kawin ≥ 4 th)',4],['Terlalu lama hamil lagi (≥ 10 th)',4],
+ ['Terlalu cepat hamil lagi (< 2 th)',4],['Terlalu banyak anak (≥ 4)',4],
+ ['Terlalu pendek (≤ 145 cm)',4],['Pernah gagal kehamilan',4],
+ ['Persalinan lalu: tarikan tang/vakum',4],['Persalinan lalu: manual plasenta',4],
+ ['Persalinan lalu: infus/transfusi',4],['Pernah operasi sesar (SC)',8],
+ ['Penyakit: anemia/malaria/TBC/jantung/DM',4],['Bengkak muka/tungkai & tekanan darah tinggi',4],
+ ['Hamil kembar 2 atau lebih',4],['Hamil kembar air (hidramnion)',4],
+ ['Bayi mati dalam kandungan',4],['Kehamilan lebih bulan (≥ 42 mgg)',4],
+ ['Letak sungsang',8],['Letak lintang',8],
+ ['Perdarahan dalam kehamilan ini',8],['Preeklampsia berat / eklampsia',8],
+];
+(function(){
+  let h='<label class="ck base"><input type="checkbox" checked disabled><span class="t">Skor awal ibu hamil (otomatis)</span><span class="sc">+2</span></label>';
+  ksprF.forEach((f,i)=>{h+='<label class="ck"><input type="checkbox" id="ks'+i+'" value="'+f[1]+'"><span class="t">'+f[0]+'</span><span class="sc">+'+f[1]+'</span></label>';});
+  document.getElementById('ksprList').innerHTML=h;
+})();
+function calcKSPR(){
+  let s=2;for(let i=0;i<ksprF.length;i++){if(document.getElementById('ks'+i).checked)s+=ksprF[i][1];}
+  let cls,badge,txt,rec;
+  if(s<=2){cls='ok';badge='KRR';txt='<b>Kehamilan Risiko Rendah</b> (skor 2).';rec='Pemeriksaan oleh bidan; persalinan dapat di polindes/puskesmas/bidan praktik.';}
+  else if(s<=10){cls='warn';badge='KRT';txt='<b>Kehamilan Risiko Tinggi</b> (skor 6–10).';rec='Pemeriksaan bidan–dokter; rencanakan persalinan di RB/RS dengan tenaga lebih lengkap.';}
+  else{cls='bad';badge='KRST';txt='<b>Kehamilan Risiko Sangat Tinggi</b> (skor ≥ 12).';rec='Harus ditangani dokter; persalinan <b>di RS</b>, pertimbangkan rujukan dini berencana.';}
+  show('r_kspr',cls,'<div class="badge">'+badge+'</div><div class="big">Total Skor: '+s+'</div><p>'+txt+'</p>'+
+    '<p><b>Rekomendasi:</b> '+rec+'</p>'+
+    '<ul><li>2 = KRR (Risiko Rendah)</li><li>6–10 = KRT (Risiko Tinggi)</li><li>≥ 12 = KRST (Sangat Tinggi)</li></ul>');
+}
+
+// ---------- LATCH ----------
+const latchItems=[
+ ['L — Latch (pelekatan)',['0 — Tidak mau melekat','1 — Perlu bantuan berulang','2 — Melekat & mengisap baik']],
+ ['A — Audible (menelan)',['0 — Tidak ada','1 — Sesekali dengan stimulasi','2 — Spontan & teratur']],
+ ['T — Type (bentuk puting)',['0 — Masuk ke dalam (inverted)','1 — Datar','2 — Menonjol setelah dirangsang']],
+ ['C — Comfort (puting/payudara)',['0 — Bengkak/lecet/nyeri berat','1 — Penuh/nyeri ringan','2 — Lunak & tidak nyeri']],
+ ['H — Hold (posisi)',['0 — Dibantu penuh','1 — Dibantu sebagian','2 — Ibu mandiri']],
+];
+buildScore('latchGrid',latchItems,'la');
+function calcLatch(){
+  let s=0;for(let i=0;i<5;i++)s+=+document.getElementById('la'+i).value;
+  let cls,badge,txt;
+  if(s>=8){cls='ok';badge='Menyusui Efektif';txt='Skor 8–10: proses menyusui <b>efektif</b>. Lanjutkan dukungan & ASI eksklusif.';}
+  else if(s>=5){cls='warn';badge='Perlu Bimbingan';txt='Skor 5–7: <b>perlu bimbingan</b>. Perbaiki posisi & pelekatan, evaluasi ulang menyusui berikutnya.';}
+  else{cls='bad';badge='Perlu Intervensi';txt='Skor 0–4: <b>ada masalah menyusui</b>. Butuh intervensi intensif (koreksi pelekatan, atasi nyeri/puting, konseling laktasi).';}
+  show('r_latch',cls,'<div class="badge">'+badge+'</div><div class="big">Total LATCH: '+s+' / 10</div><p>'+txt+'</p>');
+}
+
+// ---------- LiLA ----------
+function calcLila(){
+  const v=parseFloat(document.getElementById('lilaVal').value);
+  if(isNaN(v)){show('r_lila','warn','<div class="badge">Lengkapi data</div><p>Masukkan nilai LiLA (cm).</p>');return;}
+  if(v<23.5)show('r_lila','bad','<div class="badge">Risiko KEK</div><div class="big">LiLA '+v+' cm</div><p>Di bawah ambang 23,5 cm → <b>Kurang Energi Kronis (KEK)</b>. Berikan konseling gizi, PMT ibu hamil, dan pantau kenaikan BB.</p>');
+  else show('r_lila','ok','<div class="badge">Normal</div><div class="big">LiLA '+v+' cm</div><p>≥ 23,5 cm → status gizi <b>normal</b> (tidak KEK). Tetap pertahankan asupan gizi seimbang.</p>');
+}
+
+// ---------- TFU ----------
+function calcTFU(){
+  const t=parseFloat(document.getElementById('tfuVal').value);
+  const n=parseInt(document.getElementById('papVal').value);
+  if(isNaN(t)){show('r_tfu','warn','<div class="badge">Lengkapi data</div><p>Masukkan nilai TFU (cm).</p>');return;}
+  const uk=(t*8/7);
+  const tbj=(t-n)*155;
+  let cls='ok';if(tbj<2500)cls='warn';if(tbj>4000)cls='warn';
+  show('r_tfu',cls,'<div class="badge">Estimasi</div>'+
+    '<div class="big">UK ≈ '+uk.toFixed(1)+' minggu</div>'+
+    '<p>Taksiran Berat Janin (Johnson): <b>± '+Math.round(tbj)+' gram</b> (n='+n+').</p>'+
+    '<p>Estimasi ini dipengaruhi tinggi badan & posisi janin — konfirmasikan dengan USG.</p>');
+}
+
+// ---------- BBL ----------
+function calcBBL(){
+  const b=parseFloat(document.getElementById('bblVal').value);
+  if(isNaN(b)){show('r_bbl','warn','<div class="badge">Lengkapi data</div><p>Masukkan berat lahir (gram).</p>');return;}
+  let cls,badge,txt;
+  if(b<1000){cls='bad';badge='BBLASR';txt='Berat Badan Lahir Amat Sangat Rendah (&lt; 1000 g). Butuh perawatan intensif (NICU).';}
+  else if(b<1500){cls='bad';badge='BBLSR';txt='Berat Badan Lahir Sangat Rendah (1000–1499 g). Risiko tinggi, perlu perawatan khusus.';}
+  else if(b<2500){cls='warn';badge='BBLR';txt='Berat Badan Lahir Rendah (1500–2499 g). Jaga kehangatan (PMK/kanguru), dukung ASI, pantau ketat.';}
+  else if(b<=4000){cls='ok';badge='Normal';txt='Berat lahir <b>normal</b> (2500–4000 g). Lanjutkan asuhan BBL rutin & IMD.';}
+  else{cls='warn';badge='Makrosomia';txt='Makrosomia (&gt; 4000 g). Waspadai hipoglikemia & trauma lahir; pantau gula darah bayi.';}
+  show('r_bbl',cls,'<div class="badge">'+badge+'</div><div class="big">'+b+' gram</div><p>'+txt+'</p>');
+}
+
+// ---------- IMT ----------
+function calcIMT(){
+  const w=parseFloat(document.getElementById('bbVal').value), h=parseFloat(document.getElementById('tbVal').value);
+  if(isNaN(w)||isNaN(h)||h<=0){show('r_imt','warn','<div class="badge">Lengkapi data</div><p>Masukkan berat & tinggi badan.</p>');return;}
+  const m=h/100, imt=w/(m*m);
+  let cls,badge,gain;
+  if(imt<18.5){cls='warn';badge='Berat Kurang';gain='12,5 – 18 kg';}
+  else if(imt<25){cls='ok';badge='Normal';gain='11,5 – 16 kg';}
+  else if(imt<30){cls='warn';badge='Berat Lebih';gain='7 – 11,5 kg';}
+  else{cls='bad';badge='Obesitas';gain='5 – 9 kg';}
+  show('r_imt',cls,'<div class="badge">'+badge+'</div><div class="big">IMT: '+imt.toFixed(1)+' kg/m²</div>'+
+    '<p>Anjuran kenaikan berat badan selama kehamilan (kehamilan tunggal): <b>'+gain+'</b>.</p>'+
+    '<ul><li>&lt;18,5 kurang · 18,5–24,9 normal · 25–29,9 lebih · ≥30 obesitas</li></ul>');
+}
+</script>
+</body>
+</html>
